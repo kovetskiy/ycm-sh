@@ -25,21 +25,30 @@ def hijack_global_ycm_extra_conf():
 
     vim.command("let g:ycm_global_ycm_extra_conf = '" + new_config_path + "'")
 
-def get_ycmd_path():
+def get_ycm_lib_path():
     rtp = vim.eval("&rtp").split(",")
-    for path in rtp:
-        ycmd_path = path + "/third_party/ycmd"
-        if os.path.exists(ycmd_path):
-            return ycmd_path
+    for dir in rtp:
+        path = dir + "/python/"
+        if os.path.exists(path):
+            return path
     return None
 
+def setup_ycm_system_paths():
+    ycm_system_path = get_ycm_lib_path()
+    if not ycm_system_path:
+        return False
+
+    sys.path.insert(0, ycm_system_path)
+
+    # import ycm
+    import ycm.setup
+    ycm.setup.SetUpSystemPaths()
+
+    return True
+
 def hijack_ycmd_identifiers_regex():
-    ycmd_path = get_ycmd_path()
-    if not ycmd_path:
+    if not setup_ycm_system_paths():
         return
-
-    sys.path.insert(0, ycmd_path)
-
     import ycmd
     import ycmd.identifier_utils
 
