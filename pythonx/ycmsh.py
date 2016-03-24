@@ -1,8 +1,10 @@
 import vim
 import os.path
 import tempfile
+import sys
+import re
 
-def inject():
+def hijack_global_ycm_extra_conf():
     new_config = ""
 
     payload_path = vim.eval('expand("<sfile>:p:h:h")') + "/payload.py"
@@ -22,3 +24,24 @@ def inject():
         new_config_file.write(new_config)
 
     vim.command("let g:ycm_global_ycm_extra_conf = '" + new_config_path + "'")
+
+def get_ycmd_path():
+    rtp = vim.eval("&rtp").split(",")
+    for path in rtp:
+        ycmd_path = path + "/third_party/ycmd"
+        if os.path.exists(ycmd_path):
+            return ycmd_path
+    return None
+
+def hijack_ycmd_identifiers_regex():
+    ycmd_path = get_ycmd_path()
+    if not ycmd_path:
+        return
+
+    sys.path.insert(0, ycmd_path)
+
+    import ycmd
+    import ycmd.identifier_utils
+
+    ycmd.identifier_utils.FILETYPE_TO_IDENTIFIER_REGEX["sh"] = \
+        re.compile( r"[_a-zA-Z-][\w:-]*", re.UNICODE )
