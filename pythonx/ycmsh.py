@@ -52,7 +52,7 @@ def hijack_ycmd_identifiers_regex():
     import ycmd
     import ycmd.identifier_utils
 
-    regex = re.compile( r"[_a-zA-Z-][\w:-]*", re.UNICODE)
+    regex = re.compile( r"[:_a-zA-Z0-9-]+", re.UNICODE)
 
     ycmd.identifier_utils.FILETYPE_TO_IDENTIFIER_REGEX["sh"]   = regex
     ycmd.identifier_utils.FILETYPE_TO_IDENTIFIER_REGEX["bash"] = regex
